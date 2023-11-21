@@ -50,19 +50,23 @@ class RSSDigester:
     def summarize(self, id: int):
         article = self.db.get_article(id)
         try:
-            summarized_article = summarize(article)
+            summarized_article, token_counter = summarize(article)
             self.db.update_article(summarized_article)
             self.logger.summarize(article['Title'])
+            self.logger.token_usage(token_counter)
         except Exception as error:
             self.logger.summarize_failed(article['Title'], error)
 
     def batch_summarize(self):
         articles = self.db.get_unsummarized_articles()
+        if len(articles) == 0:
+            return None
         try:
-            summarized_articles = batch_summarize(articles)
+            summarized_articles, token_counter = batch_summarize(articles)
             for article in summarized_articles:
                 self.db.update_article(article)
                 self.logger.summarize(article['Title'])
+            self.logger.token_usage(token_counter)
         except Exception as error:
             self.logger.summarize_failed('', error)
 
@@ -85,3 +89,4 @@ class RSSDigester:
 if __name__ == '__main__':
     digester = RSSDigester()
     digester.process()
+    # digester.summarize(2)

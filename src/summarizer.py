@@ -5,6 +5,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain.schema import BaseOutputParser
 from langchain.output_parsers import PydanticOutputParser
+from langchain.callbacks import get_openai_callback, OpenAICallbackHandler
 from langserve import add_routes
 import os
 import json
@@ -55,14 +56,28 @@ json_fixer_prompt = ChatPromptTemplate.from_messages([("system", json_fixer_temp
 json_fixer_chain = json_fixer_prompt | llm 
 digest_chain = digest_prompt | llm | ArticleJSONParser()
 
-def summarize(article: Article) -> Article:
-    result = digest_chain.invoke({"text":article['Content'][:3500]})
-    article.update(result)
-    return article
+def struct_token_counter(callback: OpenAICallbackHandler):
+    return {
+        "total_tokens": callback.total_tokens,
+        "prompt_tokens": callback.prompt_tokens,
+        "completion_tokens": callback.completion_tokens
+    }
 
-def batch_summarize(articles: List[Article]) -> List[Article]:
+def summarize(article: Article) -> Article:
+    with get_openai_callback() as callback:
+        result = digest_chain.invoke({"text":article['Content'][:3500]})
+        token_counter = struct_token_counter(callback)
+    article.update(result)
+    return article, token_counter
+
+def batch_summarize(articles: List[Article]) -> (List[Article], dict):
     invoke_list = [{"text":article['Content'][:3500]} for article in articles]
-    result_list = digest_chain.batch(invoke_list)
+
+    with get_openai_callback() as callback:
+        result_list = digest_chain.batch(invoke_list)
+        token_counter = struct_token_counter(callback)
+
     for index, result in enumerate(result_list):
         articles[index].update(result)
-    return articles
+        
+    return articles, token_counter

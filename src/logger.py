@@ -76,6 +76,9 @@ class RSSLogger(Logger):
     def summarize_failed(self, title: str, e: Exception):
         self.error(f'[Summarize Failed] {title}. [Message] {e}')
 
+    def token_usage(self, token_counter: dict):
+        self.info(f"[Cost] {token_counter['total_tokens']/1000*0.0015*7.2:.2f}CNY [Token Usage]{token_counter['total_tokens']} [Prompt]{token_counter['prompt_tokens']} [Completion]{token_counter['completion_tokens']}")
+
 class FormatterLogger(Logger):
     def __init__(self, name:str = 'formatter') -> None:
         super().__init__(name)

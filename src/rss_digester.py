@@ -8,9 +8,10 @@ from formatters import MarkdownFormatter
 import xml.etree.ElementTree as ET
 
 from classifier import classify_article
-from summarizer import summarize
+from summarizer import summarize, batch_summarize
 
 from logger import RSSLogger
+import asyncio
 
 class RSSDigester:
     def __init__(self, db:Database) -> None:
@@ -44,19 +45,25 @@ class RSSDigester:
     def parse_text(self, text:str) -> str:
         Soup = BeautifulSoup(text, 'html.parser')
         return Soup.get_text()
+    
+    def summarize(self, id: int):
+        article = self.db.get_article(id)
+        try:
+            summarized_article = summarize(article)
+            self.db.update_article(summarized_article)
+            self.logger.summarize(article['Title'])
+        except Exception as error:
+            self.logger.summarize_failed(article['Title'], error)
 
-    def summarize_articles(self):
-        # fetch articles thar are not summarized
+    def batch_summarize(self):
         articles = self.db.get_unsummarized_articles()
-        # Summary article using LangChain
-        for article in articles:
-            try:
-                summarized = summarize(article)
+        try:
+            summarized_articles = batch_summarize(articles)
+            for article in summarized_articles:
+                self.db.update_article(article)
                 self.logger.summarize(article['Title'])
-                self.db.update_article(summarized)
-            except Exception as error:
-                self.logger.summarize_failed(article['Title'], error)
-
+        except Exception as error:
+            self.logger.summarize_failed('', error)
 
     def classify_articles(self):
         articles = self.db.get_all_articles()
@@ -65,12 +72,11 @@ class RSSDigester:
         # Update article in database
         self.db.update_article(classified_articles)
 
-        pass
-
 if __name__ == '__main__':
     db = Database()
     digester = RSSDigester(db)
     md_formmater = MarkdownFormatter(db)
     digester.fetch_articles()
-    digester.summarize_articles()
+    digester.batch_summarize()
+    # digester.summarize(14)
     md_formmater.run()

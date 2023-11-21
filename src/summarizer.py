@@ -57,8 +57,12 @@ digest_chain = digest_prompt | llm | ArticleJSONParser()
 
 def summarize(article: Article) -> Article:
     result = digest_chain.invoke({"text":article['Content'][:3500]})
-    article['Product'] = result['Product']
-    article['ProductAuthor'] = result['ProductAuthor']
-    article['CoreSummary'] = result['CoreSummary']
-    article['DetailedSummary'] = result['DetailedSummary']
+    article.update(result)
     return article
+
+def batch_summarize(articles: List[Article]) -> List[Article]:
+    invoke_list = [{"text":article['Content'][:3500]} for article in articles]
+    result_list = digest_chain.batch(invoke_list)
+    for index, result in enumerate(result_list):
+        articles[index].update(result)
+    return articles

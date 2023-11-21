@@ -66,6 +66,12 @@ class Database:
         
         return [self.struct_article(row) for row in cursor]
     
+    def get_article(self, id: int) -> Article:
+        # 查询数据
+        cursor = self.conn.execute("SELECT * FROM articles WHERE id=?", (id,))
+
+        return self.struct_article(cursor.fetchone())
+    
     def get_articles_past_week(self) -> list[Article]:
         # 查询数据
         cursor = self.conn.execute("SELECT * FROM articles WHERE article_date >= date('now', '-7 days')")

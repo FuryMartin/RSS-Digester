@@ -5,7 +5,8 @@
 TODO:
 
 - [x] Logging 模块
+- [x] LangChain Batch Invoke 接口
 - [ ] Token 计费模块
-- [ ] 单样本重新生成接口
+- [x] 单样本重新生成接口
 - [ ] 手动更新接口
 

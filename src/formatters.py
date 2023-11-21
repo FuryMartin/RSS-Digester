@@ -3,11 +3,13 @@ from article import Article
 from typing import List
 from database import Database
 from datetime import datetime, date
+from logger import FormatterLogger
 
 
 class Formatter:
     def __init__(self, db:Database) -> None:
         self.db = db
+        self.logger = FormatterLogger()
 
     def fetch_articles(self):
         return self.db.get_articles_past_week()
@@ -20,10 +22,15 @@ class Formatter:
 
     def save(self, lines: List[str]):
         year, week = date.today().isocalendar()[:2]
+        filename = f'./archive/{year}-Week{week}.md'
+
         # mkdir if not exist
         pathlib.Path('./archive').mkdir(parents=True, exist_ok=True)
-        with open(f'./archive/{year}-Week{week}.md', 'w', encoding='utf-8') as md_file:
+
+        with open(filename, 'w', encoding='utf-8') as md_file:
             md_file.writelines(lines)
+            
+        self.logger.save(filename)
 
     def format_article(self, article: Article) -> str:
         pass

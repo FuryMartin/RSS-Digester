@@ -4,7 +4,7 @@
 
 TODO:
 
-- [ ] Logging 模块
+- [x] Logging 模块
 - [ ] Token 计费模块
 - [ ] 单样本重新生成接口
 - [ ] 手动更新接口

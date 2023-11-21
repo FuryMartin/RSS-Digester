@@ -1,4 +1,5 @@
 from article import Article
+from logger import DatabaseLogger
 import json
 import sqlite3
 
@@ -6,7 +7,7 @@ class Database:
     def __init__(self) -> None:
         # 连接到数据库
         self.conn = sqlite3.connect('database.sqlite')
-
+        self.logger = DatabaseLogger()
         # 初始化数据表
         self.conn.execute('''CREATE TABLE IF NOT EXISTS articles
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,15 +28,14 @@ class Database:
         return [item['URI'] for item in rss]
 
     def insert_article(self, article: Article) -> None:
-        # 如果文章已存在，不再插入
+        # 判断文章是否存在
         cursor = self.conn.execute("SELECT * FROM articles WHERE title=?", (article['Title'],))
-
         if cursor.fetchone() is not None:
-            print(f"已有，不再插入: {article['Title']}")
             return
-
+    
         # 插入数据
         self.conn.execute("INSERT INTO articles (title, content, article_date, link, categorys) VALUES (?, ?, ?, ?, ?)", (article['Title'], article['Content'], article['ArticleDate'], article['Link'], article['Categorys']))
+        self.logger.insert_article(article['Title'])
 
         self.conn.commit()
     

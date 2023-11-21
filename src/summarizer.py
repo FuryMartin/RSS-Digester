@@ -28,8 +28,7 @@ class ArticleJSONParser(BaseOutputParser[str]):
     def parse(self, output: str) -> Article:
         if self.json_check(output):
             zh_dict = json.loads(output.replace("\n", ""))
-            return self.zh_to_en(zh_dict)
-            
+            return self.zh_to_en(zh_dict)     
         else:
             return self.parse(json_fixer_chain.invoke({'text':output}))
         

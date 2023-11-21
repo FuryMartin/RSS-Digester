@@ -10,14 +10,23 @@ import xml.etree.ElementTree as ET
 from classifier import classify_article
 from summarizer import summarize
 
+from logger import RSSLogger
+
 class RSSDigester:
     def __init__(self, db:Database) -> None:
         self.db = db
+        self.logger = RSSLogger()
         self.URIs = self.db.get_URIs()
 
     def fetch_articles(self):
         for URI in self.URIs:
-            response = request('GET', URI, proxies={'http': 'http://127.0.0.1:7890'})
+            try:
+                response = request('GET', URI, proxies={'http': 'http://127.0.0.1:7890'})
+                self.logger.request(URI)
+            except Exception as error:
+                self.logger.request_failed(URI, error)
+                continue
+
             root =  ET.fromstring(response.text)
             items = root.findall('.//item')
 
@@ -41,7 +50,13 @@ class RSSDigester:
         articles = self.db.get_unsummarized_articles()
         # Summary article using LangChain
         for article in articles:
-            self.db.update_article(summarize(article))
+            try:
+                summarized = summarize(article)
+                self.logger.summarize(article['Title'])
+                self.db.update_article(summarized)
+            except Exception as error:
+                self.logger.summarize_failed(article['Title'], error)
+
 
     def classify_articles(self):
         articles = self.db.get_all_articles()

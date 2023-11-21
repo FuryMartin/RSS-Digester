@@ -8,5 +8,3 @@ TODO:
 - [x] LangChain Batch Invoke 接口
 - [ ] Token 计费模块
 - [x] 单样本重新生成接口
-- [ ] 手动更新接口
-

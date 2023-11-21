@@ -14,12 +14,13 @@ from logger import RSSLogger
 import asyncio
 
 class RSSDigester:
-    def __init__(self, db:Database) -> None:
-        self.db = db
+    def __init__(self) -> None:
+        self.db = Database()
         self.logger = RSSLogger()
-        self.URIs = self.db.get_URIs()
+        self.md_formmater = MarkdownFormatter(self.db)
 
     def fetch_articles(self):
+        self.URIs = self.db.get_URIs()
         for URI in self.URIs:
             try:
                 response = request('GET', URI, proxies={'http': 'http://127.0.0.1:7890'})
@@ -71,12 +72,16 @@ class RSSDigester:
         classified_articles = [classify_article(article) for article in articles]
         # Update article in database
         self.db.update_article(classified_articles)
+    
+    def format_output(self, format_type:str = 'md') -> None:
+        if format_type == 'md':
+            self.md_formmater.run()
+
+    def process(self) -> None:
+        self.fetch_articles()
+        self.batch_summarize()
+        self.format_output()
 
 if __name__ == '__main__':
-    db = Database()
-    digester = RSSDigester(db)
-    md_formmater = MarkdownFormatter(db)
-    digester.fetch_articles()
-    digester.batch_summarize()
-    # digester.summarize(14)
-    md_formmater.run()
+    digester = RSSDigester()
+    digester.process()

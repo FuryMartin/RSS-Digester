@@ -12,3 +12,6 @@ class Article(TypedDict):
     ProductAuthor: str
     CoreSummary: str 
     DetailedSummary: str
+    Tokens: int
+    PromptTokens: int
+    CompletionTokens: int

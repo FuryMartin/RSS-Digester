@@ -19,7 +19,10 @@ class Database:
                             product TEXT,
                             product_author TEXT,
                             core_summary TEXT,
-                            detailed_summary TEXT);''')
+                            detailed_summary TEXT,
+                            token INTEGER,
+                            prompt_token INTEGER,
+                            completion_token INTEGER);''')
         
     def get_URIs(self) -> list[str]:
         # 查询数据
@@ -50,7 +53,10 @@ class Database:
             'Product': row[6],
             'ProductAuthor': row[7],
             'CoreSummary': row[8],
-            'DetailedSummary': row[9]
+            'DetailedSummary': row[9],
+            'Tokens': row[10],
+            'PromptTokens': row[11],
+            'CompletionTokens': row[12]
         }
         return article
 
@@ -80,7 +86,7 @@ class Database:
 
     def update_article(self, article: Article) -> None:
         # 更新数据
-        self.conn.execute("UPDATE articles SET product=?, product_author=?, core_summary=?, detailed_summary=? WHERE id=?", (article['Product'], article['ProductAuthor'], article['CoreSummary'], article['DetailedSummary'], article['ID']))
+        self.conn.execute("UPDATE articles SET product=?, product_author=?, core_summary=?, detailed_summary=?, token=?, prompt_token=?, completion_token=? WHERE id=?", (article['Product'], article['ProductAuthor'], article['CoreSummary'], article['DetailedSummary'] , article['Tokens'], article['PromptTokens'], article['CompletionTokens'], article['ID']))
         self.conn.commit()
 
     def delete_article(self, article: Article) -> None:

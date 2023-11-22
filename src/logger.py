@@ -59,6 +59,12 @@ class SummarizerLogger(Logger):
     
     def summarize(self, title: str):
         self.info(f'[Summarize] {title}')
+
+    def summarize_failed(self, title: str, e: Exception):
+        self.error(f'[Summarize Failed] {title}. [Message] {e}')
+
+    def json_parse_error(self, err_json: str):
+        self.error(f'[JSON Parse Error] {err_json}')
     
 class RSSLogger(Logger):
     def __init__(self, name: str = 'rss'):
@@ -67,14 +73,8 @@ class RSSLogger(Logger):
     def request(self, URI: str):
         self.info(f'[Request] {URI}')
 
-    def summarize(self, title: str):
-        self.info(f'[Summarize] {title}')
-
     def request_failed(self, URI: str, e: Exception):
         self.error(f'[Request Failed] {URI}. [Message] {e}')
-
-    def summarize_failed(self, title: str, e: Exception):
-        self.error(f'[Summarize Failed] {title}. [Message] {e}')
 
     def token_usage(self, token_counter: dict):
         self.info(f"[Cost] {token_counter['total_tokens']/1000*0.0015*7.2:.2f}CNY [Token Usage]{token_counter['total_tokens']} [Prompt]{token_counter['prompt_tokens']} [Completion]{token_counter['completion_tokens']}")

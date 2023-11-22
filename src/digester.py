@@ -88,5 +88,6 @@ class RSSDigester:
 
 if __name__ == '__main__':
     digester = RSSDigester()
-    digester.process()
-    # digester.summarize(2)
+    # digester.process()
+    digester.summarize(21)
+    digester.format_output()

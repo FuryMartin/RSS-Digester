@@ -15,7 +15,7 @@ class Database:
                             content TEXT NOT NULL,
                             article_date DATE NOT NULL,
                             link TEXT NOT NULL,
-                            categorys TEXT NOT NULL,
+                            categorys TEXT,
                             product TEXT,
                             product_author TEXT,
                             core_summary TEXT,
@@ -36,9 +36,12 @@ class Database:
         if cursor.fetchone() is not None:
             return
     
-        # 插入数据
-        self.conn.execute("INSERT INTO articles (title, content, article_date, link, categorys) VALUES (?, ?, ?, ?, ?)", (article['Title'], article['Content'], article['ArticleDate'], article['Link'], article['Categorys']))
-        self.logger.insert_article(article['Title'])
+        try:
+            # 插入数据
+            self.conn.execute("INSERT INTO articles (title, content, article_date, link, categorys) VALUES (?, ?, ?, ?, ?)", (article['Title'], article['Content'], article['ArticleDate'], article['Link'], article['Categorys']))
+            self.logger.insert_article(article['Title'])
+        except:
+            print(article)
 
         self.conn.commit()
     

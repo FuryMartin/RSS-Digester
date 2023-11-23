@@ -29,15 +29,28 @@ class RSSDigester:
             items = root.findall('.//item')
 
             for item in items:
-                article : Article = {
-                    'Title': item.find('title').text,
-                    'Content': self.parse_text(item.find('description').text),
-                    'Link': item.find('link').text,
-                    'ArticleDate': item.find('pubDate').text,
-                    'ArticleAuthor': item.find('author').text,
-                    'Categorys': ",".join([category.text for category in item.findall('category')])
-                }
+                article = self.parse_input(item)
                 self.db.insert_article(article=article)
+                
+    def parse_input(self, input:ET.Element) -> Article:
+        # Required fields
+        title = input.find('title').text
+        link = input.find('link').text
+        description = self.parse_text(input.find('description').text)
+        pubDate = input.find('pubDate').text
+        
+        # Optional fields
+        author = input.find('author').text if input.find('author') else None
+        categories = ",".join([category.text for category in input.findall('category')]) if input.find('category') else None
+        
+        return {
+            'Title': title,
+            'Link': link,
+            'Content': description,
+            'ArticleDate': pubDate,
+            'ArticleAuthor': author,
+            'Categorys': categories
+        }
 
     def parse_text(self, text:str) -> str:
         Soup = BeautifulSoup(text, 'html.parser')

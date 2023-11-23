@@ -20,18 +20,10 @@ class ArticleJSONParser:
         except:
             return False
         
-    def zh_to_en(self, zh_dict: dict) -> Article:
-        return {
-            "Product": zh_dict['产品名称'],
-            "ProductAuthor": zh_dict['单位'],
-            "CoreSummary": zh_dict['成果'],
-            "DetailedSummary": zh_dict['详情']
-        }
-
     def parse(self, output: str) -> Article:
+        output = output.replace("\n", "")
         if self.json_check(output):
-            zh_dict = json.loads(output.replace("\n", ""))
-            return self.zh_to_en(zh_dict)
+            return json.loads(output)
         else:
             self.logger.json_parse_error(output)
             fix = self.json_fixer_chain.invoke({'text':output})
@@ -77,15 +69,25 @@ Notice：1. 产品名称应是产品名词、事件名或研究名称，若文�
             "CompletionTokens": callback.completion_tokens
         }
 
+    def zh_to_en(self, zh_dict: dict) -> Article:
+        return {
+            "Product": zh_dict['产品名称'],
+            "ProductAuthor": zh_dict['单位'],
+            "CoreSummary": zh_dict['成果'],
+            "DetailedSummary": zh_dict['详情']
+        }
+
     def invoke(self, article: Article, token_info:bool = True) -> Article:
-        get_content = lambda x: (x['Title'] + x['Content'])[:3500]
+        get_content = lambda x: (x['Title'] + x['Content'])[:3200]
         try:
             with get_openai_callback() as callback:
                 raw_result = self.digester.invoke({"text": get_content(article)})
-                result = self.json_parser.parse(raw_result.content)
+                zh_result = self.json_parser.parse(raw_result.content)
+                result = self.zh_to_en(zh_result)
                 token_info = self.struct_token_counter(callback)
         except Exception as error:
             self.logger.summarize_failed(article['Title'], error)
+            return article
 
         article.update(result)
 

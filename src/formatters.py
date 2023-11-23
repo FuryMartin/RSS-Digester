@@ -58,5 +58,10 @@ class MarkdownFormatter(Formatter):
         return '%Y-%m-%d'
 
     def format_article(self, article: Article) -> str:
-        return f"**[{article['Product']}]({article['Link']})：{article['CoreSummary']} | {article['ProductAuthor']}**\n\n【{self.date_format(article['ArticleDate'])}】{article['DetailedSummary']}\n\n"
+        try:
+            date = self.date_format(article['ArticleDate'])
+        except:
+            date = article['ArticleDate']
+            
+        return f"**[{article['Product']}]({article['Link']})：{article['CoreSummary']} | {article['ProductAuthor']}**\n\n【{date}】{article['DetailedSummary']}\n\n"
     

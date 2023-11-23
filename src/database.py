@@ -20,6 +20,7 @@ class Database:
                             product_author TEXT,
                             core_summary TEXT,
                             detailed_summary TEXT,
+                            drop_article TEXT,
                             token INTEGER,
                             prompt_token INTEGER,
                             completion_token INTEGER);''')
@@ -81,9 +82,9 @@ class Database:
 
         return self.struct_article(cursor.fetchone())
     
-    def get_articles_past_week(self) -> list[Article]:
+    def get_articles_past_week(self, drop=True) -> list[Article]:
         # 查询数据
-        cursor = self.conn.execute("SELECT * FROM articles WHERE article_date >= date('now', '-7 days')")
+        cursor = self.conn.execute("SELECT * FROM articles WHERE article_date >= date('now', '-7 days') AND drop_article IS NULL")
 
         return [self.struct_article(row) for row in cursor]
 

@@ -40,8 +40,12 @@ class RSSDigester:
         pubDate = input.find('pubDate').text
         
         # Optional fields
-        author = input.find('author').text if input.find('author') else None
-        categories = ",".join([category.text for category in input.findall('category')]) if input.find('category') else None
+        author = ''
+        categories = ''
+        if input.find('author') is not None:
+            author = input.find('author').text
+        if input.find('category') is not None:
+            categories = ",".join([category.text for category in input.findall('category')])
         
         return {
             'Title': title,

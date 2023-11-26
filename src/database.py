@@ -1,5 +1,7 @@
 from article import Article
 from logger import DatabaseLogger
+from datetime import datetime, timedelta
+from email.utils import parsedate_to_datetime
 import json
 import sqlite3
 
@@ -84,9 +86,13 @@ class Database:
     
     def get_articles_past_week(self, drop=True) -> list[Article]:
         # 查询数据
-        cursor = self.conn.execute("SELECT * FROM articles WHERE article_date >= date('now', '-7 days') AND drop_article IS NULL")
+        cursor = self.conn.execute("SELECT * FROM articles WHERE drop_article IS NULL")
 
-        return [self.struct_article(row) for row in cursor]
+        undrop_articles = [self.struct_article(row) for row in cursor]
+
+        within_7_days = lambda x: parsedate_to_datetime(x['ArticleDate']).date() > (datetime.today() - timedelta(days=7)).date()
+        
+        return [article for article in undrop_articles if within_7_days(article)]
 
     def update_article(self, article: Article) -> None:
         # 更新数据

@@ -22,7 +22,7 @@ class Formatter:
 
     def save(self, lines: List[str]):
         year, week = date.today().isocalendar()[:2]
-        filename = f'./archive/{year}-Week{week}.md'
+        filename = f'./archive/{year}-Week{week + 1}.md'
 
         # mkdir if not exist
         pathlib.Path('./archive').mkdir(parents=True, exist_ok=True)

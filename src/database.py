@@ -90,9 +90,10 @@ class Database:
 
         undrop_articles = [self.struct_article(row) for row in cursor]
 
-        within_7_days = lambda x: parsedate_to_datetime(x['ArticleDate']).date() > (datetime.today() - timedelta(days=7)).date()
+        today = datetime.today()
+        within_week = lambda x: parsedate_to_datetime(x['ArticleDate']).date() >= (today - timedelta(days=today.weekday())).date()
         
-        return [article for article in undrop_articles if within_7_days(article)]
+        return [article for article in undrop_articles if within_week(article)]
 
     def update_article(self, article: Article) -> None:
         # 更新数据

@@ -22,10 +22,11 @@ class Database:
                             product_author TEXT,
                             core_summary TEXT,
                             detailed_summary TEXT,
-                            drop_article TEXT,
                             token INTEGER,
                             prompt_token INTEGER,
-                            completion_token INTEGER);''')
+                            completion_token INTEGER,
+                            tag TEXT,
+                            drop_article TEXT);''')
         
     def get_URIs(self) -> list[str]:
         # 查询数据
@@ -91,13 +92,14 @@ class Database:
         undrop_articles = [self.struct_article(row) for row in cursor]
 
         today = datetime.today()
-        within_week = lambda x: parsedate_to_datetime(x['ArticleDate']).date() >= (today - timedelta(days=today.weekday())).date()
+        within_week = lambda x: datetime.strptime(x['ArticleDate'], '%Y-%m-%d').date() >= (today - timedelta(days=today.weekday())).date()
+        # parsedate_to_datetime(x['ArticleDate']).date() >= (today - timedelta(days=today.weekday())).date()
         
         return [article for article in undrop_articles if within_week(article)]
 
     def update_article(self, article: Article) -> None:
         # 更新数据
-        self.conn.execute("UPDATE articles SET product=?, product_author=?, core_summary=?, detailed_summary=?, token=?, prompt_token=?, completion_token=? WHERE id=?", (article['Product'], article['ProductAuthor'], article['CoreSummary'], article['DetailedSummary'] , article['Tokens'], article['PromptTokens'], article['CompletionTokens'], article['ID']))
+        self.conn.execute("UPDATE articles SET product=?, product_author=?, core_summary=?, detailed_summary=?, token=?, prompt_token=?, completion_token=?, article_date=? WHERE id=?", (article['Product'], article['ProductAuthor'], article['CoreSummary'], article['DetailedSummary'] , article['Tokens'], article['PromptTokens'], article['CompletionTokens'], article['ArticleDate'], article['ID']))
         self.conn.commit()
 
     def delete_article(self, article: Article) -> None:

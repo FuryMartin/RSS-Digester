@@ -48,20 +48,19 @@ class Formatter:
         self.save(lines)
 
 class MarkdownFormatter(Formatter):
-    def date_format(self, date: str) -> str:
-        return datetime.strptime(date, self.date_input()).strftime(self.date_output())
+    # def date_format(self, date: str) -> str:
+    #     return datetime.strptime(date, )
+    #     return datetime.strptime(date, self.date_input()).strftime(self.date_output())
     
     def date_input(self) -> str:
-        return '%a, %d %b %Y %H:%M:%S %Z'
-    
-    def date_output(self) -> str:
         return '%Y-%m-%d'
+    #     return '%a, %d %b %Y %H:%M:%S %Z'
+    
+    # def date_output(self) -> str:
+    #     return '%Y-%m-%d'
 
     def format_article(self, article: Article) -> str:
-        try:
-            date = self.date_format(article['ArticleDate'])
-        except:
-            date = article['ArticleDate']
+        date = article['ArticleDate']
             
         return f"**[{article['Product']}]({article['Link']})：{article['CoreSummary']} | {article['ProductAuthor']}**\n\n【{date}】{article['DetailedSummary']}\n\n"
     

@@ -7,6 +7,7 @@ from formatters import MarkdownFormatter
 from summarizer import Summarizer
 from classifier import classify_article
 from logger import RSSLogger
+from email.utils import parsedate_to_datetime
 
 class RSSDigester:
     def __init__(self) -> None:
@@ -36,8 +37,16 @@ class RSSDigester:
         # Required fields
         title = input.find('title').text
         link = input.find('link').text
-        description = self.parse_text(input.find('description').text)
-        pubDate = input.find('pubDate').text
+
+        pubDate = parsedate_to_datetime(input.find('pubDate').text).strftime('%Y-%m-%d')
+        
+        content_encoded = input.find('{http://purl.org/rss/1.0/modules/content/}encoded') 
+        if content_encoded is not None:
+            # print("Hello")
+            description = self.parse_text(content_encoded.text)
+        else:
+            description = self.parse_text(input.find('description').text)
+        # print(description)
         
         # Optional fields
         author = ''
@@ -57,7 +66,7 @@ class RSSDigester:
         }
 
     def parse_text(self, text:str) -> str:
-        Soup = BeautifulSoup(text, 'html.parser')
+        Soup = BeautifulSoup(text, 'lxml')
         return Soup.get_text()
     
     def summarize(self, id: int):
@@ -94,5 +103,6 @@ class RSSDigester:
 if __name__ == '__main__':
     digester = RSSDigester()
     digester.process()
+    # digester.fetch_articles()
     # digester.summarize(1)
     # digester.format_output()

@@ -1,6 +1,10 @@
 [
     {
-        "title": "智源社区 BAAI",
-        "URI": "https://rsshub.app/baai/hub/90"
+        "title": "机器之心",
+        "URI": "https://www.jiqizhixin.com/rss"
+    },
+    {
+        "title": "量子位",
+        "URI": "https://rsshub.app/qbitai/tag/大模型"
     }
 ]
